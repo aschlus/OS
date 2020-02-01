@@ -1,5 +1,5 @@
-[org 0x7c00]
 
+[org 0x7c00]
   mov bp, 0x8000
   mov sp, bp
 
@@ -10,7 +10,6 @@
 
   mov dx, [0x9000]
   call print_hex
-
   call print_nl
 
   mov dx, [0x9000 + 512]
@@ -25,5 +24,5 @@
 times 510 - ($-$$) db 0
 dw 0xaa55
 
-times 256 dw 0xdada
-times 256 dw 0xface
+times 256 dw 0xdada ; sector 2 = 512 bytes
+times 256 dw 0xface ; sector 3 = 512 bytes
