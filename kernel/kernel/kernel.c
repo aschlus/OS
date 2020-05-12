@@ -4,5 +4,6 @@
 
 void kernel_main(void) {
      terminal_initialize();
-     printf("Hello, kernel World!\n");
+     char *world = "World!";
+     printf("Hello, kernel %s\n", world);
 }
