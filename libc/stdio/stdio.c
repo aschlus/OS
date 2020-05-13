@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined(__is_libk)
+#include <kernel/tty.h>
+#endif
+
 static bool print(const char *data, size_t length) {
      const unsigned char *bytes = (const unsigned char *) data;
      for (size_t i = 0; i < length; i++)
@@ -77,4 +81,18 @@ int printf(const char * restrict format, ...) {
 
      va_end(parameters);
      return written;
+}
+
+int putchar(int ic) {
+#if defined(__is_libk)
+     char c = (char) ic;
+     terminal_write(&c, sizeof(c));
+#else
+     //TODO: Implement stdio and the write system call
+#endif
+     return ic;
+}
+
+int puts(const char *string) {
+     return printf("%s\n", string);
 }

@@ -31,28 +31,10 @@ LIBK_CPPFLAGS:=$(LIBK_CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 
 FREEOBJS=\
 $(ARCH_FREEOBJS) \
-ctype/isalnum.o \
-ctype/isalpha.o \
-ctype/iscntrl.o \
-ctype/isdigit.o \
-ctype/isgraph.o \
-ctype/islower.o \
-ctype/isprint.o \
-ctype/ispunct.o \
-ctype/isspace.o \
-ctype/isupper.o \
-ctype/isxdigit.o \
-ctype/tolower.o \
-ctype/toupper.o \
-stdio/printf.o \
-stdio/putchar.o \
-stdio/puts.o \
-stdlib/abort.o \
-string/memcmp.o \
-string/memcpy.o \
-string/memmove.o \
-string/memset.o \
-string/strlen.o \
+ctype/ctype.o \
+stdio/stdio.o \
+stdlib/stdlib.o \
+string/string.o \
 
 HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \
