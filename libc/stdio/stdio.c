@@ -1,12 +1,25 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #if defined(__is_libk)
 #include <kernel/tty.h>
 #endif
+
+void displayCharacter(char c, int *loc) {
+     putchar(c);
+     *loc++;
+}
+
+void displayString(char *c, int *loc) {
+     for (int i = 0; c[i]; ++i) {
+          displayCharacter(c[i], loc);
+     }
+}
 
 static bool print(const char *data, size_t length) {
      const unsigned char *bytes = (const unsigned char *) data;
@@ -16,71 +29,81 @@ static bool print(const char *data, size_t length) {
      return true;
 }
 
-int printf(const char * restrict format, ...) {
-     va_list parameters;
-     va_start(parameters, format);
+int vprintf(const char * restrict curChar, va_list list) {
+     int loc = 0;
+     char buf[256] = {0};
 
-     int written = 0;
+     for (int i = 0; curChar[i]; ++i) {
+          char specifier = 0;
+          char length = 0;
 
-     while (*format != '\0') {
-          size_t maxrem = INT_MAX - written;
+          int lengthSpec = 0;
+          int precSpec = 0;
+          bool leftJustify = false;
+          bool zeroPad = false;
+          bool spaceNoSign = false;
+          bool altForm = false;
+          bool plusSign = false;
+          bool emode = false;
+          int expo = 0;
 
-          if (format[0] != '%' || format[1] == '%') {
-               if (format[0] == '%')
-                    format++;
-               size_t amount = 1;
-               while (format[amount] && format[amount] != '%')
-                    amount++;
-               if (maxrem < amount) {
-                    //TODO: Set errno to EOVERFLOW
-                    return -1;
+          if (curChar[i] == '%') {
+               ++i;
+               bool extBreak = false;
+               while (1){
+                    switch (curChar[i]) {
+                         case '-':
+                              leftJustify = true;
+                              ++i;
+                              break;
+                         case '+':
+                              plusSign = true;
+                              ++i;
+                              break;
+                         case '#':
+                              altForm = true;
+                              ++i;
+                              break;
+                         case ' ':
+                              spaceNoSign = true;
+                              ++i;
+                              break;
+                         case '0':
+                              zeroPad = true;
+                              ++i;
+                              break;
+                         default:
+                              extBreak = true;
+                              break;
+                    }
+                    if (extBreak)
+                         break;
                }
-               if (!print(format, amount))
-                    return -1;
-               format += amount;
-               written += amount;
-               continue;
+               while (isdigit(curChar[i])) {
+                    lengthSpec *= 10;
+                    lengthSpec += curChar[i] - 48;
+                    ++i;
+               }
+
+               if (curChar[i] == '*') {
+                    lengthSpec = va_arg(list, int);
+                    ++i;
+               }
           }
-
-          const char *format_begun_at = format++;
-
-          if (*format == 'c') {
-               format++;
-               char c = (char) va_arg(parameters, int /* char promotes to int */);
-               if (!maxrem) {
-                    //TODO: Set errno to EOVERFLOW
-                    return -1;
-               }
-               if (!print(&c, sizeof(c)))
-                    return -1;
-               written++;
-          } else if (*format == 's') {
-               format++;
-               const char *str = va_arg(parameters, const char *);
-               size_t len = strlen(str);
-               if (maxrem < len) {
-                    //TODO: Set errno to EOVERFLOW
-                    return -1;
-               }
-               if (!print(str, len))
-                    return -1;
-               written += len;
-          } else {
-               format = format_begun_at;
-               size_t len = strlen(format);
-               if (maxrem < len) {
-                    //TODO: Set errno to EOVERFLOW
-                    return -1;
-               }
-               if (!print(format, len))
-                    return -1;
-               written += len;
-               format += len;
+          else {
+               displayCharacter(curChar[i], &loc);
           }
      }
 
-     va_end(parameters);
-     return written;
+     return loc;
+}
+
+__attribute__ ((format (printf, 1, 2))) int printf(const char *format, ...) {
+     va_list args;
+     va_start(args, format);
+     int i = vprintf(format, args);
+     va_end(args);
+     return i;
 }
 
 int putchar(int ic) {

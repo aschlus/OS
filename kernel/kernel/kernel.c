@@ -1,9 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <kernel/tty.h>
 
 void kernel_main(void) {
      terminal_initialize();
-     char *world = "World!";
-     printf("Hello, kernel %s\n", world);
+     printf("Hello world! 123 abc %123abc a1b2c3");
 }

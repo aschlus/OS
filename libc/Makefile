@@ -32,6 +32,7 @@ LIBK_CPPFLAGS:=$(LIBK_CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 FREEOBJS=\
 $(ARCH_FREEOBJS) \
 ctype/ctype.o \
+errno/errno.o \
 stdio/stdio.o \
 stdlib/stdlib.o \
 string/string.o \
